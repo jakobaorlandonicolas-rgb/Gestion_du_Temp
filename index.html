@@ -14,10 +14,10 @@
         <div><strong>Mon Organisation</strong><small>Gestion du temps</small></div>
       </div>
       <nav class="nav">
-        <button class="nav-btn active" data-view="dashboard">⌂ <span>Dashboard</span></button>
-        <button class="nav-btn" data-view="today">▣ <span>Aujourd'hui</span></button>
-        <button class="nav-btn" data-view="week">▦ <span>Semaine</span></button>
-        <button class="nav-btn" data-view="month">▦ <span>Mois</span></button>
+        <button class="nav-btn active" data-view="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg> <span>Dashboard</span></button>
+        <button class="nav-btn" data-view="today"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"></rect><line x1="3" y1="9.5" x2="21" y2="9.5"></line><line x1="8" y1="2.5" x2="8" y2="6.5"></line><line x1="16" y1="2.5" x2="16" y2="6.5"></line><circle cx="12" cy="15" r="2.2"></circle></svg> <span>Aujourd'hui</span></button>
+        <button class="nav-btn" data-view="week"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"></rect><line x1="3" y1="9.5" x2="21" y2="9.5"></line><line x1="8" y1="2.5" x2="8" y2="6.5"></line><line x1="16" y1="2.5" x2="16" y2="6.5"></line><line x1="9" y1="13" x2="9" y2="18"></line><line x1="15" y1="13" x2="15" y2="18"></line></svg> <span>Semaine</span></button>
+        <button class="nav-btn" data-view="month"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"></rect><line x1="3" y1="9.5" x2="21" y2="9.5"></line><line x1="8" y1="2.5" x2="8" y2="6.5"></line><line x1="16" y1="2.5" x2="16" y2="6.5"></line><line x1="3" y1="14" x2="21" y2="14"></line><line x1="9" y1="9.5" x2="9" y2="21"></line><line x1="15" y1="9.5" x2="15" y2="21"></line></svg> <span>Mois</span></button>
         <button class="nav-btn" data-view="activities">☷ <span>Mes activités</span></button>
       </nav>
       <button class="add-side" id="openAddSide">＋ Nouvelle activité</button>
@@ -36,6 +36,10 @@
         </div>
         <div class="top-actions">
           <button class="icon-btn" id="todayBtn" title="Aller à aujourd'hui">Aujourd'hui</button>
+          <button class="theme-toggle" id="themeToggle" title="Changer de thème" aria-label="Changer de thème">
+            <span class="theme-icon sun">☀</span>
+            <span class="theme-icon moon">☾</span>
+          </button>
           <div class="clock" id="liveClock">--:--:--</div>
         </div>
       </header>
@@ -45,7 +49,7 @@
           <div class="page-head">
             <div>
               <p class="eyebrow" id="dashboardDate">—</p>
-              <h1>Bonjour 👋</h1>
+              <h1><span id="greeting" class="greeting-text">Bonjour</span> 👋</h1>
               <p class="muted">Organise ta journée et garde le contrôle de ton temps.</p>
             </div>
             <button class="primary-btn" id="openAdd">＋ Ajouter une activité</button>
@@ -158,6 +162,7 @@
     "use strict";
 
     const KEY = "monOrganisation.activities.v1";
+    const THEME_KEY = "monOrganisation.theme.v1";
     const $ = (s) => document.querySelector(s);
     const $$ = (s) => [...document.querySelectorAll(s)];
     const pad = n => String(n).padStart(2, "0");
@@ -169,6 +174,24 @@
     const timeToMin = t => { const [h,m]=t.split(":").map(Number); return h*60+m; };
     const minNow = () => { const d=new Date(); return d.getHours()*60+d.getMinutes(); };
     const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+    // ---- Thème sombre / clair ----
+    function applyTheme(theme){
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem(THEME_KEY, theme);
+      const btn = $("#themeToggle");
+      if(btn) btn.classList.toggle("is-light", theme === "light");
+    }
+    function initTheme(){
+      const saved = localStorage.getItem(THEME_KEY);
+      const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      applyTheme(saved || (prefersLight ? "light" : "dark"));
+    }
+    initTheme();
+    $("#themeToggle").addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      applyTheme(current === "light" ? "dark" : "light");
+    });
 
     let activities = [];
     try { activities = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { activities=[]; }
@@ -201,6 +224,72 @@
       const d=new Date(); $("#liveClock").textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       $("#dashboardDate").textContent=fmtDate(d); $("#todayDate").textContent=fmtDate(selectedDay);
       $("#dayToolbarLabel").textContent=fmtDate(selectedDay);
+      updateGreeting(d);
+    }
+
+    // ---- Salutation dynamique selon l'heure (boucle machine à écrire en continu) ----
+    let lastGreetingText = "";
+    let greetingLoopStarted = false;
+    function updateGreeting(d){
+      const h=d.getHours();
+      let text="Bonjour";
+      if(h>=5 && h<12) text="Bonjour";
+      else if(h>=12 && h<18) text="Bon après-midi";
+      else text="Bonsoir";
+      if(text===lastGreetingText) return;
+      lastGreetingText=text;
+      startGreetingLoop();
+    }
+    function startGreetingLoop(){
+      const el=$("#greeting");
+      if(!el) return;
+      el.classList.add("typing");
+      greetingLoopStarted=true;
+      const typeSpeed=80, eraseSpeed=45, pauseAfterType=1400, pauseAfterErase=350;
+      (function cycle(){
+        const text=lastGreetingText;
+        let i=0;
+        el.textContent="";
+        (function typeStep(){
+          if(lastGreetingText!==text) return; // le texte a changé entre-temps (changement d'heure)
+          if(i<=text.length){
+            el.textContent=text.slice(0,i); i++;
+            setTimeout(typeStep,typeSpeed);
+          } else {
+            setTimeout(eraseStep,pauseAfterType);
+          }
+        })();
+        function eraseStep(){
+          if(lastGreetingText!==text) return;
+          let j=text.length;
+          (function erase(){
+            if(lastGreetingText!==text) return;
+            if(j>=0){
+              el.textContent=text.slice(0,j); j--;
+              setTimeout(erase,eraseSpeed);
+            } else {
+              setTimeout(cycle,pauseAfterErase);
+            }
+          })();
+        }
+      })();
+    }
+
+    // ---- Glisser (swipe) pour Semaine et Mois sur mobile ----
+    function enableSwipeNav(el, onLeft, onRight){
+      if(!el) return;
+      let startX=0, startY=0, tracking=false;
+      el.addEventListener("touchstart", e=>{
+        if(e.touches.length!==1) return;
+        startX=e.touches[0].clientX; startY=e.touches[0].clientY; tracking=true;
+      }, {passive:true});
+      el.addEventListener("touchend", e=>{
+        if(!tracking) return; tracking=false;
+        const dx=e.changedTouches[0].clientX-startX, dy=e.changedTouches[0].clientY-startY;
+        if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)*1.5){
+          if(dx<0) onLeft(); else onRight();
+        }
+      }, {passive:true});
     }
 
     function activityHTML(a, compact=false){
@@ -354,6 +443,9 @@
     $("#prevMonth").onclick=()=>{selectedMonth.setMonth(selectedMonth.getMonth()-1);renderAll();};
     $("#nextMonth").onclick=()=>{selectedMonth.setMonth(selectedMonth.getMonth()+1);renderAll();};
     $("#currentMonth").onclick=()=>{selectedMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);renderAll();};
+
+    enableSwipeNav($("#weekGrid"), ()=>$("#nextWeek").click(), ()=>$("#prevWeek").click());
+    enableSwipeNav($("#monthCalendar"), ()=>$("#nextMonth").click(), ()=>$("#prevMonth").click());
     $("#categoryFilter").onchange=renderActivities; $("#statusFilter").onchange=renderActivities;
 
     let searchTimer;
