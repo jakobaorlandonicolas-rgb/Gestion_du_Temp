@@ -7,7 +7,47 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-shell">
+
+  <!-- Écran de connexion / inscription -->
+  <div class="auth-screen show" id="authScreen">
+    <div class="auth-card">
+      <div class="brand auth-brand">
+        <div class="brand-icon">⏱</div>
+        <div><strong>Mon Organisation</strong><small>Gestion du temps</small></div>
+      </div>
+      <h2 id="authTitle">Connexion</h2>
+      <p class="muted">Connecte-toi pour retrouver tes activités.</p>
+      <form id="authForm">
+        <label class="full">Adresse e-mail
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg>
+            <input id="authEmail" type="email" required placeholder="toi@exemple.com" autocomplete="email">
+          </div>
+        </label>
+        <label class="full">Mot de passe
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+            <input id="authPassword" type="password" required minlength="6" placeholder="6 caractères minimum" autocomplete="current-password">
+            <button type="button" class="toggle-password" id="togglePassword" aria-label="Afficher le mot de passe">
+              <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg class="eye-icon eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.4 18.4 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </div>
+        </label>
+        <p class="auth-error" id="authError"></p>
+        <button type="submit" class="primary-btn full-width" id="authSubmit">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+          <span id="authSubmitText">Se connecter</span>
+        </button>
+      </form>
+      <p class="auth-toggle">
+        <span id="authToggleText">Pas encore de compte ?</span>
+        <button type="button" class="text-btn" id="authToggleBtn">Créer un compte</button>
+      </p>
+    </div>
+  </div>
+
+  <div class="app-shell" id="appShell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <div class="brand-icon">⏱</div>
@@ -22,7 +62,15 @@
       </nav>
       <button class="add-side" id="openAddSide">＋ Nouvelle activité</button>
       <div class="sidebar-bottom">
-        <div class="storage-status"><span class="dot"></span>Données sauvegardées localement</div>
+        <div class="user-box">
+          <div class="user-avatar" id="userAvatar">?</div>
+          <span class="user-email" id="userEmail">—</span>
+        </div>
+        <button class="logout-btn" id="logoutBtn" title="Se déconnecter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Déconnexion</span>
+        </button>
+        <div class="storage-status"><span class="dot"></span>Données sauvegardées en ligne</div>
       </div>
     </aside>
 
@@ -56,10 +104,10 @@
           </div>
 
           <div class="stats-grid">
-            <article class="stat-card"><span class="stat-icon blue">◷</span><div><span>À faire aujourd'hui</span><strong id="todoCount">0</strong></div></article>
-            <article class="stat-card"><span class="stat-icon green">✓</span><div><span>Terminées aujourd'hui</span><strong id="doneCount">0</strong></div></article>
-            <article class="stat-card"><span class="stat-icon red">!</span><div><span>Non terminées</span><strong id="overdueCount">0</strong></div></article>
-            <article class="stat-card"><span class="stat-icon purple">↗</span><div><span>Taux de réussite</span><strong id="successRate">0%</strong></div></article>
+            <article class="stat-card"><div class="stat-border"></div><div class="stat-inner"><span class="stat-icon blue">◷</span><div><span>À faire aujourd'hui</span><strong id="todoCount">0</strong></div></div></article>
+            <article class="stat-card"><div class="stat-border"></div><div class="stat-inner"><span class="stat-icon green">✓</span><div><span>Terminées aujourd'hui</span><strong id="doneCount">0</strong></div></div></article>
+            <article class="stat-card"><div class="stat-border"></div><div class="stat-inner"><span class="stat-icon red">!</span><div><span>Non terminées</span><strong id="overdueCount">0</strong></div></div></article>
+            <article class="stat-card"><div class="stat-border"></div><div class="stat-inner"><span class="stat-icon purple">↗</span><div><span>Taux de réussite</span><strong id="successRate">0%</strong></div></div></article>
           </div>
 
           <div class="dashboard-grid">
@@ -88,7 +136,7 @@
 
         <section id="todayView" class="view">
           <div class="page-head">
-            <div><p class="eyebrow" id="todayDate">—</p><h1>Aujourd'hui</h1><p class="muted">Planning détaillé de 03h00 à 23h00.</p></div>
+            <div><p class="eyebrow" id="todayDate">—</p><h1>Aujourd'hui</h1><p class="muted">Planning détaillé sur 24h, de minuit à minuit.</p></div>
             <button class="primary-btn" id="openAddToday">＋ Ajouter</button>
           </div>
           <div class="day-toolbar"><button id="prevDay">←</button><button id="todayJump">Aujourd'hui</button><button id="nextDay">→</button><strong id="dayToolbarLabel">—</strong></div>
@@ -142,26 +190,40 @@
           <label class="full">Titre de l'activité<input id="title" required maxlength="100" placeholder="Ex. Apprendre Java"></label>
           <label>Date<input id="date" type="date" required></label>
           <label>Catégorie<select id="category"><option>Études</option><option>Projet</option><option>Personnel</option><option>Repos</option><option>Autre</option></select></label>
-          <label>Heure de début<input id="start" type="time" min="03:00" max="23:00" required></label>
-          <label>Heure de fin<input id="end" type="time" min="03:00" max="23:00" required></label>
+          <label>Heure de début<input id="start" type="time" min="00:00" max="23:59" required></label>
+          <label>Heure de fin<input id="end" type="time" min="00:00" max="23:59" required></label>
           <label>Priorité<select id="priority"><option value="normal">Normale</option><option value="important">Importante</option><option value="low">Faible</option></select></label>
           <label>Lieu / salle<input id="location" maxlength="80" placeholder="Ex. Maison, faculté..."></label>
           <label class="full">Description<textarea id="description" rows="3" maxlength="300" placeholder="Notes ou détails..."></textarea></label>
         </div>
-        <div class="form-note">Les horaires doivent être compris entre <strong>03h00 et 23h00</strong>.</div>
+        <div class="form-note">Tu peux planifier une activité à n'importe quelle heure, <strong>24h/24, 7j/7</strong>.</div>
         <div class="modal-actions"><button type="button" class="secondary-btn" id="cancelModal">Annuler</button><button type="submit" class="primary-btn">Enregistrer</button></div>
       </form>
     </div>
   </div>
 
   <div class="toast-wrap" id="toastWrap"></div>
-  
+
+  <!-- Firebase (Authentification + Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD4idRt6tm537QHxNNXgMpCVHvOtsYqJog",
+      authDomain: "gestion-du-temp.firebaseapp.com",
+      projectId: "gestion-du-temp",
+      storageBucket: "gestion-du-temp.firebasestorage.app",
+      messagingSenderId: "106603322842",
+      appId: "1:106603322842:web:f0b1bcf585e78a6a6434e3"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 
   <script>
   (() => {
     "use strict";
 
-    const KEY = "monOrganisation.activities.v1";
     const THEME_KEY = "monOrganisation.theme.v1";
     const $ = (s) => document.querySelector(s);
     const $$ = (s) => [...document.querySelectorAll(s)];
@@ -193,14 +255,32 @@
       applyTheme(current === "light" ? "dark" : "light");
     });
 
+    // ---- Firebase Auth + Firestore ----
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    let currentUser = null;
+    let unsubscribeActivities = null;
+
+    function activitiesRef(){
+      return db.collection("users").doc(currentUser.uid).collection("activities");
+    }
+    function subscribeActivities(){
+      if(unsubscribeActivities) unsubscribeActivities();
+      unsubscribeActivities = activitiesRef().onSnapshot(snap=>{
+        activities = snap.docs.map(doc=>({id:doc.id, ...doc.data()}));
+        renderAll();
+      }, err=>{
+        console.error(err);
+        showToast("Erreur de synchronisation avec le cloud.","error");
+      });
+    }
+
     let activities = [];
-    try { activities = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { activities=[]; }
     let selectedDay = new Date(); selectedDay.setHours(0,0,0,0);
     let selectedWeek = new Date(); selectedWeek.setHours(0,0,0,0);
     let selectedMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     let editingId = null;
 
-    function save(){ localStorage.setItem(KEY, JSON.stringify(activities)); }
     function sorted(list){ return [...list].sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)); }
     function getState(a){
       if(a.status==="done") return "done";
@@ -245,7 +325,7 @@
       if(!el) return;
       el.classList.add("typing");
       greetingLoopStarted=true;
-      const typeSpeed=80, eraseSpeed=45, pauseAfterType=1400, pauseAfterErase=350;
+      const typeSpeed=150, eraseSpeed=90, pauseAfterType=2200, pauseAfterErase=600;
       (function cycle(){
         const text=lastGreetingText;
         let i=0;
@@ -332,7 +412,7 @@
 
     function renderToday(){
       const iso=dateISO(selectedDay), list=sorted(activities.filter(a=>a.date===iso));
-      const slots=[]; for(let h=3;h<23;h++) slots.push(h);
+      const slots=[]; for(let h=0;h<24;h++) slots.push(h);
       $("#daySchedule").innerHTML=slots.map(h=>{
         const hs=pad(h)+":00", he=pad(h+1)+":00";
         const matches=list.filter(a=>timeToMin(a.start)<(h+1)*60 && timeToMin(a.end)>h*60);
@@ -345,7 +425,7 @@
       const start=startOfWeek(selectedWeek), days=[...Array(7)].map((_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d;});
       $("#weekLabel").textContent=`${fmtDate(days[0])} — ${fmtDate(days[6])}`;
       $("#weekGrid").innerHTML=`<div class="week-head"><div>HEURE</div>${days.map(d=>`<div class="${dateISO(d)===todayISO()?'today-col':''}">${d.toLocaleDateString("fr-FR",{weekday:"short"})}<strong>${d.getDate()}</strong></div>`).join("")}</div>`+
-      [...Array(20)].map((_,i)=>3+i).map(h=>{
+      [...Array(24)].map((_,i)=>i).map(h=>{
         return `<div class="week-row"><div class="week-hour">${pad(h)}:00</div>${days.map(d=>{
           const iso=dateISO(d), found=sorted(activities.filter(a=>a.date===iso&&timeToMin(a.start)<(h+1)*60&&timeToMin(a.end)>h*60));
           return `<div class="week-cell ${iso===todayISO()?'today-col':''}">${found.map(a=>`<button class="week-event ${stateClass(getState(a))}" data-id="${a.id}" data-action="edit"><b>${escapeHTML(a.title)}</b><small>${a.start}–${a.end}</small></button>`).join("")}</div>`;
@@ -392,22 +472,45 @@
     }
     function closeModal(){ $("#modalBackdrop").classList.remove("show"); editingId=null; }
 
-    $("#activityForm").addEventListener("submit",e=>{
+    $("#activityForm").addEventListener("submit",async e=>{
       e.preventDefault();
+      if(!currentUser) return;
       const data={title:$("#title").value.trim(),date:$("#date").value,category:$("#category").value,start:$("#start").value,end:$("#end").value,priority:$("#priority").value,location:$("#location").value.trim(),description:$("#description").value.trim()};
       if(!data.title)return showToast("Le titre est obligatoire.","error");
-      if(timeToMin(data.start)<180||timeToMin(data.end)>1380||timeToMin(data.end)<=timeToMin(data.start)) return showToast("Vérifie les horaires : 03h00–23h00 et fin après début.","error");
+      if(timeToMin(data.end)<=timeToMin(data.start)) return showToast("L'heure de fin doit être après l'heure de début.","error");
       const duplicate=activities.find(a=>a.id!==editingId&&a.date===data.date&&timeToMin(data.start)<timeToMin(a.end)&&timeToMin(data.end)>timeToMin(a.start));
       if(duplicate && !confirm(`Attention : conflit avec « ${duplicate.title} » (${duplicate.start}–${duplicate.end}). Enregistrer quand même ?`)) return;
-      if(editingId){ const i=activities.findIndex(a=>a.id===editingId); activities[i]={...activities[i],...data}; showToast("Activité modifiée.","success"); }
-      else { activities.push({id:uid(),...data,status:"todo",createdAt:new Date().toISOString()}); showToast("Activité ajoutée.","success"); }
-      save(); closeModal(); renderAll();
+      try{
+        if(editingId){
+          await activitiesRef().doc(editingId).update(data);
+          showToast("Activité modifiée.","success");
+        } else {
+          await activitiesRef().add({...data,status:"todo",createdAt:new Date().toISOString()});
+          showToast("Activité ajoutée.","success");
+        }
+        closeModal();
+      } catch(err){
+        console.error(err);
+        showToast("Erreur lors de l'enregistrement.","error");
+      }
     });
 
     function handleAction(action,id){
-      if(action==="complete"){ const a=activities.find(x=>x.id===id); if(a){a.status="done";a.completedAt=new Date().toISOString();save();showToast("Activité marquée comme terminée ✓","success");renderAll();} }
+      if(!currentUser) return;
+      if(action==="complete"){
+        activitiesRef().doc(id).update({status:"done",completedAt:new Date().toISOString()})
+          .then(()=>showToast("Activité marquée comme terminée ✓","success"))
+          .catch(err=>{console.error(err);showToast("Erreur lors de la mise à jour.","error");});
+      }
       if(action==="edit") openModal(id);
-      if(action==="delete"){ const a=activities.find(x=>x.id===id); if(a&&confirm(`Supprimer « ${a.title} » ?`)){activities=activities.filter(x=>x.id!==id);save();showToast("Activité supprimée.");renderAll();} }
+      if(action==="delete"){
+        const a=activities.find(x=>x.id===id);
+        if(a&&confirm(`Supprimer « ${a.title} » ?`)){
+          activitiesRef().doc(id).delete()
+            .then(()=>showToast("Activité supprimée."))
+            .catch(err=>{console.error(err);showToast("Erreur lors de la suppression.","error");});
+        }
+      }
     }
     document.addEventListener("click",e=>{
       const actionEl=e.target.closest("[data-action]");
@@ -461,8 +564,75 @@
       sessionStorage.setItem("overdueNotified",JSON.stringify(notified));
     }
 
-    window.addEventListener("storage",()=>{try{activities=JSON.parse(localStorage.getItem(KEY)||"[]");renderAll();}catch{}});
-    renderAll();
+    // ---- Connexion / Inscription / Déconnexion ----
+    let authMode = "login";
+    function setAuthMode(mode){
+      authMode = mode;
+      const isLogin = mode==="login";
+      $("#authTitle").textContent = isLogin ? "Connexion" : "Créer un compte";
+      $("#authSubmitText").textContent = isLogin ? "Se connecter" : "Créer mon compte";
+      $("#authToggleText").textContent = isLogin ? "Pas encore de compte ?" : "Déjà un compte ?";
+      $("#authToggleBtn").textContent = isLogin ? "Créer un compte" : "Se connecter";
+      $("#authError").textContent = "";
+    }
+    $("#authToggleBtn").addEventListener("click",()=>setAuthMode(authMode==="login"?"signup":"login"));
+
+    $("#togglePassword").addEventListener("click",()=>{
+      const input=$("#authPassword"), btn=$("#togglePassword");
+      const showing=input.type==="text";
+      input.type=showing?"password":"text";
+      btn.classList.toggle("active",!showing);
+      btn.setAttribute("aria-label",showing?"Afficher le mot de passe":"Masquer le mot de passe");
+    });
+
+    function authErrorMessage(err){
+      const map = {
+        "auth/email-already-in-use":"Cet e-mail est déjà utilisé.",
+        "auth/invalid-email":"Adresse e-mail invalide.",
+        "auth/weak-password":"Mot de passe trop faible (6 caractères minimum).",
+        "auth/user-not-found":"Aucun compte avec cet e-mail.",
+        "auth/wrong-password":"Mot de passe incorrect.",
+        "auth/invalid-credential":"E-mail ou mot de passe incorrect."
+      };
+      return map[err.code] || "Une erreur est survenue. Réessaie.";
+    }
+
+    $("#authForm").addEventListener("submit", async e=>{
+      e.preventDefault();
+      const email=$("#authEmail").value.trim(), password=$("#authPassword").value;
+      $("#authError").textContent="";
+      $("#authSubmit").disabled=true;
+      try{
+        if(authMode==="login") await auth.signInWithEmailAndPassword(email,password);
+        else await auth.createUserWithEmailAndPassword(email,password);
+      } catch(err){
+        $("#authError").textContent = authErrorMessage(err);
+      } finally {
+        $("#authSubmit").disabled=false;
+      }
+    });
+
+    $("#logoutBtn").addEventListener("click", ()=>auth.signOut());
+
+    auth.onAuthStateChanged(user=>{
+      currentUser = user;
+      if(user){
+        $("#authScreen").classList.remove("show");
+        $("#appShell").style.display = "flex";
+        $("#userEmail").textContent = user.email;
+        $("#userAvatar").textContent = (user.email||"?").charAt(0).toUpperCase();
+        $("#authForm").reset();
+        renderAll();
+        subscribeActivities();
+      } else {
+        if(unsubscribeActivities){ unsubscribeActivities(); unsubscribeActivities=null; }
+        activities = [];
+        $("#appShell").style.display = "none";
+        $("#authScreen").classList.add("show");
+      }
+    });
+
+    updateClock();
     setInterval(()=>{updateClock();renderDashboard();renderToday();checkOverdue();},1000);
   })();
   </script>
