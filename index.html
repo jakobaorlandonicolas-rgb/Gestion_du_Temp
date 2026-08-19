@@ -21,7 +21,7 @@
         <label class="full">Adresse e-mail
           <div class="input-wrap">
             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg>
-            <input id="authEmail" type="email" required placeholder="toi@exemple.com" autocomplete="email">
+            <input id="authEmail" type="email" required placeholder="Exemple : jacob@gmail.com" autocomplete="email">
           </div>
         </label>
         <label class="full">Mot de passe
@@ -312,10 +312,10 @@
     let greetingLoopStarted = false;
     function updateGreeting(d){
       const h=d.getHours();
-      let text="Bonjour";
-      if(h>=5 && h<12) text="Bonjour";
-      else if(h>=12 && h<18) text="Bon après-midi";
-      else text="Bonsoir";
+      const minutes = h * 60 + d.getMinutes();
+      let text="Bonsoir";
+      if(minutes >= 5 * 60 && minutes < 13 * 60) text="Bonjour";
+      else if(minutes >= 13 * 60 && minutes < 17 * 60 + 30) text="Bon après-midi";
       if(text===lastGreetingText) return;
       lastGreetingText=text;
       startGreetingLoop();

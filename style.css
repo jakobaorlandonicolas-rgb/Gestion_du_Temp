@@ -635,18 +635,12 @@ img {
     transform: translateY(-3px);
 }
 
-/* Couleurs propres à chaque carte (2 couleurs qui tournent en boucle) */
-.stat-card:nth-child(1) { --stat-c1: #60a5fa; --stat-c2: #22d3ee; } /* À faire aujourd'hui — bleu / cyan */
-.stat-card:nth-child(2) { --stat-c1: #34d399; --stat-c2: #a3e635; } /* Terminées aujourd'hui — vert / lime */
-.stat-card:nth-child(3) { --stat-c1: #f87171; --stat-c2: #fb923c; } /* Non terminées — rouge / orange */
-.stat-card:nth-child(4) { --stat-c1: #a78bfa; --stat-c2: #f472b6; } /* Taux de réussite — violet / rose */
-
-/* ---- Bordure animée : 2 couleurs qui tournent en continu à 360°, épaisseur 2px, sans arrêt ---- */
+/* ---- Bordure animée identique à celle du formulaire ---- */
 .stat-border {
     position: absolute;
     inset: 0;
-    background: conic-gradient(from 0deg, var(--stat-c1), var(--stat-c2), var(--stat-c1));
-    animation: spinBorder 12s linear infinite;
+    background: conic-gradient(from 0deg, var(--border-c1), var(--border-c2), var(--border-c1));
+    animation: none;
     z-index: 0;
 }
 
@@ -1163,11 +1157,14 @@ img {
    WEEK
    ========================================================= */
 
-.week-view {
+.week-view,
+#weekView {
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
 }
 
 .week-grid {
@@ -1284,11 +1281,14 @@ img {
    MONTH / CALENDAR
    ========================================================= */
 
-.month-view {
+.month-view,
+#monthView {
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
 }
 
 .calendar {
@@ -1722,6 +1722,10 @@ img {
     text-align: left;
 }
 
+:root[data-theme="light"] .auth-brand strong {
+    color: var(--text);
+}
+
 .auth-card h2 {
     margin: 0 0 6px;
     font-size: 22px;
@@ -1973,7 +1977,7 @@ img {
     }
 
     #weekGrid, #monthCalendar {
-        touch-action: pan-y;
+        touch-action: pan-x pan-y;
     }
 
     .week-toolbar::after,
@@ -2029,7 +2033,11 @@ img {
     }
 
     .clock {
-        display: none;
+        display: block;
+        font-size: 11px;
+        min-width: 64px;
+        text-align: center;
+        white-space: nowrap;
     }
 
     .top-actions .icon-btn {
