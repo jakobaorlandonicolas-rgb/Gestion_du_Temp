@@ -443,6 +443,17 @@ img {
     flex-shrink: 0;
 }
 
+.mobile-menu svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+    margin: auto;
+}
+
+.mobile-back {
+    display: none;
+}
+
 
 /* =========================================================
    CONTENT
@@ -1998,11 +2009,39 @@ img {
         transform: translateX(-100%);
         transition: .25s var(--ease);
         width: 260px;
-        box-shadow: 20px 0 50px rgba(0, 0, 0, .45);
+        box-shadow: none;
     }
 
     .sidebar.mobile-open {
         transform: none;
+    }
+
+    .mobile-back {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        min-height: 42px;
+        margin: -8px 0 18px;
+        padding: 0 12px;
+        border: 1px solid rgba(129, 140, 248, .28);
+        border-radius: 12px;
+        background: rgba(99, 102, 241, .1);
+        color: #c7cbff;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: left;
+    }
+
+    .mobile-back svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .mobile-back:hover {
+        background: rgba(99, 102, 241, .2);
+        border-color: rgba(129, 140, 248, .5);
+        color: #fff;
     }
 
     /* MAIN */
@@ -2024,6 +2063,10 @@ img {
         height: 40px;
     }
 
+    .top-actions {
+        gap: 8px;
+    }
+
     /* TOPBAR */
 
     .topbar {
@@ -2035,7 +2078,7 @@ img {
     .clock {
         display: block;
         font-size: 11px;
-        min-width: 64px;
+        min-width: 62px;
         text-align: center;
         white-space: nowrap;
     }
@@ -2046,6 +2089,8 @@ img {
 
     .search-box {
         height: 40px;
+        flex: 1 1 auto;
+        min-width: 0;
     }
 
     .search-box kbd {
@@ -2214,6 +2259,35 @@ img {
     .mobile-menu {
         width: 36px;
         height: 36px;
+    }
+
+    .mobile-menu svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .top-actions {
+        gap: 6px;
+    }
+
+    .theme-toggle {
+        width: 46px;
+        height: 28px;
+        padding: 0 5px;
+    }
+
+    .theme-toggle::before {
+        width: 22px;
+        height: 22px;
+    }
+
+    .theme-toggle.is-light::before {
+        transform: translateX(18px);
+    }
+
+    .clock {
+        min-width: 58px;
+        font-size: 10px;
     }
 
     .search-box {
