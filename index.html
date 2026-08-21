@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Organisation — Gestion du temps</title>
+  <meta name="theme-color" content="#6366f1">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Écran de connexion / inscription -->
+  <div class="auth-screen show" id="authScreen">
+    <div class="auth-card">
+      <div class="brand auth-brand">
+        <div class="brand-icon">⏱</div>
+        <div><strong>Mon Organisation</strong><small>Gestion du temps</small></div>
+      </div>
+      <h2 id="authTitle">Connexion</h2>
+      <p class="muted">Connecte-toi pour retrouver tes activités.</p>
+      <form id="authForm">
+        <label class="full">Adresse e-mail
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg>
+            <input id="authEmail" type="email" required placeholder="Exemple : jacob@gmail.com" autocomplete="email">
+          </div>
+        </label>
+        <label class="full">Mot de passe
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+            <input id="authPassword" type="password" required minlength="6" placeholder="6 caractères minimum" autocomplete="current-password">
+            <button type="button" class="toggle-password" id="togglePassword" aria-label="Afficher le mot de passe">
+              <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg class="eye-icon eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.4 18.4 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </div>
+        </label>
+        <p class="auth-error" id="authError"></p>
+        <button type="submit" class="primary-btn full-width" id="authSubmit">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+          <span id="authSubmitText">Se connecter</span>
+        </button>
+        <button type="button" class="secondary-btn full-width" id="offlineAccessBtn" hidden>Continuer hors connexion</button>
+      </form>
+      <p class="auth-toggle">
+        <span id="authToggleText">Pas encore de compte ?</span>
+        <button type="button" class="text-btn" id="authToggleBtn">Créer un compte</button>
+      </p>
+    </div>
+  </div>
+
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">⏱</div>
+        <div><strong>Mon Organisation</strong><small>Gestion du temps</small></div>
+      </div>
+      <button class="mobile-back" id="mobileBack" type="button" aria-label="Fermer le menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+        <span>Retour</span>
+      </button>
+      <nav class="nav">
+        <button class="nav-btn active" data-view="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg> <span>Dashboard</span></button>
+        <button class="nav-btn" data-view="today"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"></rect><line x1="3" y1="9.5" x2="21" y2="9.5"></line><line x1="8" y1="2.5" x2="8" y2="6.5"></line><line x1="16" y1="2.5" x2="16" y2="6.5"></line><circle cx="12" cy="15" r="2.2"></circle></svg> <span>Aujourd'hui</span></button>
+        <button class="nav-btn" data-view="week"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"></rect><line x1="3" y1="9.5" x2="21" y2="9.5"></line><line x1="8" y1="2.5" x2="8" y2="6.5"></line><line x1="16" y1="2.5" x2="16" y2="6.5"></line><line x1="9" y1="13" x2="9" y2="18"></line><line x1="15" y1="13" x2="15" y2="18"></line></svg> <span>Semaine</span></button>
+        <button class="nav-btn" data-view="month"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"></rect><line x1="3" y1="9.5" x2="21" y2="9.5"></line><line x1="8" y1="2.5" x2="8" y2="6.5"></line><line x1="16" y1="2.5" x2="16" y2="6.5"></line><line x1="3" y1="14" x2="21" y2="14"></line><line x1="9" y1="9.5" x2="9" y2="21"></line><line x1="15" y1="9.5" x2="15" y2="21"></line></svg> <span>Mois</span></button>
+        <button class="nav-btn" data-view="activities">☷ <span>Mes activités</span></button>
+      </nav>
+      <button class="add-side" id="openAddSide">＋ Nouvelle activité</button>
+      <div class="sidebar-bottom">
+        <div class="user-box">
+          <div class="user-avatar" id="userAvatar">?</div>
+          <span class="user-email" id="userEmail">—</span>
+        </div>
+        <button class="logout-btn" id="logoutBtn" title="Se déconnecter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Déconnexion</span>
+        </button>
+        <div class="storage-status"><span class="dot"></span>Données sauvegardées en ligne</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+        </button>
+        <div class="search-box">
+          <span>⌕</span>
+          <input id="searchInput" type="search" placeholder="Rechercher une activité, un programme...">
+          <kbd>Ctrl K</kbd>
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn" id="todayBtn" title="Aller à aujourd'hui">Aujourd'hui</button>
+          <button class="theme-toggle" id="themeToggle" title="Changer de thème" aria-label="Changer de thème">
+            <span class="theme-icon sun">☀</span>
+            <span class="theme-icon moon">☾</span>
+          </button>
+          <div class="clock" id="liveClock">--:--:--</div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="dashboardView" class="view active">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow" id="dashboardDate">—</p>
+              <h1><span id="greeting" class="greeting-text">Bonjour</span> 👋</h1>
+              <p class="muted">Organise ta journée et garde le contrôle de ton temps.</p>
+            </div>
+            <button class="primary-btn" id="openAdd">＋ Ajouter une activité</button>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card"><div class="stat-border"></div><div class="stat-inner"><span class="stat-icon blue">◷</span><div><span>À faire aujourd'hui</span><strong id="todoCount">0</strong></div></div></article>
+            <article class="stat-card"><div class="stat-border"></div><div class="stat-inner"><span class="stat-icon green">✓</span><div><span>Terminées aujourd'hui</span><strong id="doneCount">0</strong></div></div></article>
+            <article class="stat-card"><div class="stat-border"></div><div class="stat-inner"><span class="stat-icon red">!</span><div><span>Non terminées</span><strong id="overdueCount">0</strong></div></div></article>
+            <article class="stat-card"><div class="stat-border"></div><div class="stat-inner"><span class="stat-icon purple">↗</span><div><span>Taux de réussite</span><strong id="successRate">0%</strong></div></div></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="panel current-panel">
+              <div class="panel-head"><div><span class="section-label">SUIVI EN DIRECT</span><h2>Programme actuel</h2></div><span class="live-pill" id="currentStatus">EN ATTENTE</span></div>
+              <div id="currentActivity" class="current-empty">Aucune activité en cours.</div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head"><div><span class="section-label">À VENIR</span><h2>Prochain programme</h2></div><button class="text-btn" data-view="today">Voir la journée</button></div>
+              <div id="nextActivity" class="next-card empty">Aucun programme à venir aujourd'hui.</div>
+            </section>
+          </div>
+
+          <div class="dashboard-grid lower">
+            <section class="panel">
+              <div class="panel-head"><div><span class="section-label">AUJOURD'HUI</span><h2>Planning du jour</h2></div><button class="text-btn" data-view="today">Tout voir</button></div>
+              <div id="todayPreview" class="activity-list"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><div><span class="section-label">ALERTES</span><h2>À ne pas oublier</h2></div></div>
+              <div id="alertsList" class="activity-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="todayView" class="view">
+          <div class="page-head">
+            <div><p class="eyebrow" id="todayDate">—</p><h1>Aujourd'hui</h1><p class="muted">Planning détaillé sur 24h, de minuit à minuit.</p></div>
+            <button class="primary-btn" id="openAddToday">＋ Ajouter</button>
+          </div>
+          <div class="day-toolbar"><button id="prevDay">←</button><button id="todayJump">Aujourd'hui</button><button id="nextDay">→</button><strong id="dayToolbarLabel">—</strong></div>
+          <div id="daySchedule" class="day-schedule"></div>
+        </section>
+
+        <section id="weekView" class="view">
+          <div class="page-head">
+            <div><p class="eyebrow">PLANNING HEBDOMADAIRE</p><h1>Semaine</h1><p class="muted" id="weekLabel">—</p></div>
+            <button class="primary-btn" id="openAddWeek">＋ Ajouter</button>
+          </div>
+          <div class="week-toolbar"><button id="prevWeek">← Semaine précédente</button><button id="currentWeek">Cette semaine</button><button id="nextWeek">Semaine suivante →</button></div>
+          <div id="weekGrid" class="week-grid"></div>
+        </section>
+
+        <section id="monthView" class="view">
+          <div class="page-head">
+            <div><p class="eyebrow">CALENDRIER</p><h1 id="monthTitle">Mois</h1><p class="muted">Vue mensuelle de tes activités.</p></div>
+            <button class="primary-btn" id="openAddMonth">＋ Ajouter</button>
+          </div>
+          <div class="month-toolbar"><button id="prevMonth">←</button><button id="currentMonth">Mois actuel</button><button id="nextMonth">→</button></div>
+          <div id="monthCalendar" class="calendar"></div>
+        </section>
+
+        <section id="activitiesView" class="view">
+          <div class="page-head">
+            <div><p class="eyebrow">GESTION</p><h1>Mes activités</h1><p class="muted">Retrouve, modifie et organise toutes tes activités.</p></div>
+            <button class="primary-btn" id="openAddActivities">＋ Ajouter</button>
+          </div>
+          <div class="filters">
+            <select id="categoryFilter"><option value="all">Toutes les catégories</option><option>Études</option><option>Projet</option><option>Personnel</option><option>Repos</option><option>Autre</option></select>
+            <select id="statusFilter"><option value="all">Tous les états</option><option value="todo">À faire</option><option value="done">Terminées</option><option value="overdue">Non terminées</option></select>
+          </div>
+          <div id="allActivities" class="all-activities"></div>
+        </section>
+
+        <section id="searchView" class="view">
+          <div class="page-head"><div><p class="eyebrow">RECHERCHE</p><h1>Résultats</h1><p class="muted" id="searchLabel">—</p></div></div>
+          <div id="searchResults" class="all-activities"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <div class="modal-head"><div><span class="section-label">PLANIFICATION</span><h2 id="modalTitle">Ajouter une activité</h2></div><button class="close-btn" id="closeModal">×</button></div>
+      <form id="activityForm">
+        <input type="hidden" id="activityId">
+        <div class="form-grid">
+          <label class="full">Titre de l'activité<input id="title" required maxlength="100" placeholder="Ex. Apprendre Java"></label>
+          <label>Date<input id="date" type="date" required></label>
+          <label>Catégorie<select id="category"><option>Études</option><option>Projet</option><option>Personnel</option><option>Repos</option><option>Autre</option></select></label>
+          <label>Heure de début<input id="start" type="time" min="00:00" max="23:59" required></label>
+          <label>Heure de fin<input id="end" type="time" min="00:00" max="23:59" required></label>
+          <label>Priorité<select id="priority"><option value="normal">Normale</option><option value="important">Importante</option><option value="low">Faible</option></select></label>
+          <label>Lieu / salle<input id="location" maxlength="80" placeholder="Ex. Maison, faculté..."></label>
+          <label class="full">Description<textarea id="description" rows="3" maxlength="300" placeholder="Notes ou détails..."></textarea></label>
+        </div>
+        <div class="form-note">Tu peux planifier une activité à n'importe quelle heure, <strong>24h/24, 7j/7</strong>.</div>
+        <div class="modal-actions"><button type="button" class="secondary-btn" id="cancelModal">Annuler</button><button type="submit" class="primary-btn">Enregistrer</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- Firebase (Authentification + Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD4idRt6tm537QHxNNXgMpCVHvOtsYqJog",
+      authDomain: "gestion-du-temp.firebaseapp.com",
+      projectId: "gestion-du-temp",
+      storageBucket: "gestion-du-temp.firebasestorage.app",
+      messagingSenderId: "106603322842",
+      appId: "1:106603322842:web:f0b1bcf585e78a6a6434e3"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js")
+          .catch(error => console.error("Service worker indisponible :", error));
+      });
+    }
+  </script>
+
+  <script>
+  (() => {
+    "use strict";
+
+    const THEME_KEY = "monOrganisation.theme.v1";
+    const OFFLINE_USER_KEY = "monOrganisation.offlineUser.v1";
+    const OFFLINE_UID_KEY = "monOrganisation.offlineUid.v1";
+    const LOCAL_ACTIVITIES_PREFIX = "monOrganisation.activities.v1.";
+    const PENDING_OPERATIONS_PREFIX = "monOrganisation.pending.v1.";
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => [...document.querySelectorAll(s)];
+    const pad = n => String(n).padStart(2, "0");
+    const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now()+"-"+Math.random().toString(16).slice(2));
+    const fmtDate = d => new Intl.DateTimeFormat("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(d);
+    const dateISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const parseISO = s => { const [y,m,day] = s.split("-").map(Number); return new Date(y,m-1,day); };
+    const todayISO = () => dateISO(new Date());
+    const timeToMin = t => { const [h,m]=t.split(":").map(Number); return h*60+m; };
+    const minNow = () => { const d=new Date(); return d.getHours()*60+d.getMinutes(); };
+    const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    const localActivitiesKey = email => LOCAL_ACTIVITIES_PREFIX + encodeURIComponent(email);
+    const pendingOperationsKey = email => PENDING_OPERATIONS_PREFIX + encodeURIComponent(email);
+
+    // ---- Thème sombre / clair ----
+    function applyTheme(theme){
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem(THEME_KEY, theme);
+      const btn = $("#themeToggle");
+      if(btn) btn.classList.toggle("is-light", theme === "light");
+    }
+    function initTheme(){
+      const saved = localStorage.getItem(THEME_KEY);
+      const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      applyTheme(saved || (prefersLight ? "light" : "dark"));
+    }
+    initTheme();
+    $("#themeToggle").addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      applyTheme(current === "light" ? "dark" : "light");
+    });
+
+    // ---- Firebase Auth + Firestore ----
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    db.enablePersistence({ synchronizeTabs: true }).catch(error => {
+      if (error.code !== "failed-precondition" && error.code !== "unimplemented") {
+        console.error("Persistance hors connexion indisponible :", error);
+      }
+    });
+    let currentUser = null;
+    let offlineSession = false;
+    let unsubscribeActivities = null;
+
+    function saveLocalActivities(){
+      const email = currentUser?.email;
+      if(email) localStorage.setItem(localActivitiesKey(email), JSON.stringify(activities));
+    }
+    function queueOperation(operation){
+      const email = currentUser?.email;
+      if(!email) return;
+      const pending = JSON.parse(localStorage.getItem(pendingOperationsKey(email)) || "[]");
+      pending.push(operation);
+      localStorage.setItem(pendingOperationsKey(email), JSON.stringify(pending));
+    }
+    function restoreOfflineSession(){
+      const email = localStorage.getItem(OFFLINE_USER_KEY);
+      const uid = localStorage.getItem(OFFLINE_UID_KEY);
+      if(!email || !uid) return false;
+      currentUser = { email, uid };
+      offlineSession = true;
+      activities = JSON.parse(localStorage.getItem(localActivitiesKey(email)) || "[]");
+      $("#authScreen").classList.remove("show");
+      $("#appShell").style.display = "flex";
+      $("#userEmail").textContent = email + " (hors connexion)";
+      $("#userAvatar").textContent = email.charAt(0).toUpperCase();
+      renderAll();
+      showToast("Mode hors connexion activé.");
+      return true;
+    }
+    function updateOfflineAccessButton(){
+      const button = $("#offlineAccessBtn");
+      if(button) button.hidden = !localStorage.getItem(OFFLINE_USER_KEY) || !localStorage.getItem(OFFLINE_UID_KEY);
+    }
+
+    function activitiesRef(){
+      return db.collection("users").doc(currentUser.uid).collection("activities");
+    }
+    async function syncPendingOperations(){
+      if(!currentUser?.uid || !currentUser.email) return;
+      const key = pendingOperationsKey(currentUser.email);
+      const pending = JSON.parse(localStorage.getItem(key) || "[]");
+      if(!pending.length) return;
+      for(const operation of pending){
+        const ref = activitiesRef().doc(operation.id);
+        if(operation.type === "delete") await ref.delete();
+        else await ref.set(operation.data, { merge: true });
+      }
+      localStorage.removeItem(key);
+      showToast("Programmes hors connexion synchronisés.", "success");
+    }
+    function subscribeActivities(){
+      if(unsubscribeActivities) unsubscribeActivities();
+      unsubscribeActivities = activitiesRef().onSnapshot(snap=>{
+        activities = snap.docs.map(doc=>({id:doc.id, ...doc.data()}));
+        saveLocalActivities();
+        syncPendingOperations().catch(error => {
+          console.error("Synchronisation des programmes en attente impossible :", error);
+          showToast("La synchronisation sera retentée plus tard.", "warning");
+        });
+        renderAll();
+      }, err=>{
+        console.error(err);
+        showToast("Erreur de synchronisation avec le cloud.","error");
+      });
+    }
+
+    let activities = [];
+    let selectedDay = new Date(); selectedDay.setHours(0,0,0,0);
+    let selectedWeek = new Date(); selectedWeek.setHours(0,0,0,0);
+    let selectedMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let editingId = null;
+
+    function sorted(list){ return [...list].sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)); }
+    function getState(a){
+      if(a.status==="done") return "done";
+      if(a.date < todayISO()) return "overdue";
+      if(a.date === todayISO() && timeToMin(a.end) <= minNow()) return "overdue";
+      if(a.date === todayISO() && timeToMin(a.start) <= minNow() && timeToMin(a.end) > minNow()) return "current";
+      return "todo";
+    }
+    function stateLabel(s){ return ({done:"Terminée",overdue:"Non terminée",current:"En cours",todo:"À faire"})[s]; }
+    function stateClass(s){ return ({done:"done",overdue:"overdue",current:"current",todo:"todo"})[s]; }
+    function showToast(message,type="info"){
+      const el=document.createElement("div"); el.className="toast "+type; el.textContent=message;
+      $("#toastWrap").appendChild(el); setTimeout(()=>el.remove(),3600);
+    }
+
+    function renderAll(){
+      updateClock(); renderDashboard(); renderToday(); renderWeek(); renderMonth(); renderActivities(); checkOverdue();
+    }
+
+    function updateClock(){
+      const d=new Date(); $("#liveClock").textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      $("#dashboardDate").textContent=fmtDate(d); $("#todayDate").textContent=fmtDate(selectedDay);
+      $("#dayToolbarLabel").textContent=fmtDate(selectedDay);
+      updateGreeting(d);
+    }
+
+    // ---- Salutation dynamique selon l'heure (boucle machine à écrire en continu) ----
+    let lastGreetingText = "";
+    let greetingLoopStarted = false;
+    function updateGreeting(d){
+      const h=d.getHours();
+      const minutes = h * 60 + d.getMinutes();
+      let text="Bonsoir";
+      if(minutes >= 5 * 60 && minutes < 13 * 60) text="Bonjour";
+      else if(minutes >= 13 * 60 && minutes < 17 * 60 + 30) text="Bon après-midi";
+      if(text===lastGreetingText) return;
+      lastGreetingText=text;
+      startGreetingLoop();
+    }
+    function startGreetingLoop(){
+      const el=$("#greeting");
+      if(!el) return;
+      el.classList.add("typing");
+      greetingLoopStarted=true;
+      const typeSpeed=150, eraseSpeed=90, pauseAfterType=2200, pauseAfterErase=600;
+      (function cycle(){
+        const text=lastGreetingText;
+        let i=0;
+        el.textContent="";
+        (function typeStep(){
+          if(lastGreetingText!==text) return; // le texte a changé entre-temps (changement d'heure)
+          if(i<=text.length){
+            el.textContent=text.slice(0,i); i++;
+            setTimeout(typeStep,typeSpeed);
+          } else {
+            setTimeout(eraseStep,pauseAfterType);
+          }
+        })();
+        function eraseStep(){
+          if(lastGreetingText!==text) return;
+          let j=text.length;
+          (function erase(){
+            if(lastGreetingText!==text) return;
+            if(j>=0){
+              el.textContent=text.slice(0,j); j--;
+              setTimeout(erase,eraseSpeed);
+            } else {
+              setTimeout(cycle,pauseAfterErase);
+            }
+          })();
+        }
+      })();
+    }
+
+    // ---- Glisser (swipe) pour Semaine et Mois sur mobile ----
+    function enableSwipeNav(el, onLeft, onRight){
+      if(!el) return;
+      let startX=0, startY=0, tracking=false;
+      el.addEventListener("touchstart", e=>{
+        if(e.touches.length!==1) return;
+        startX=e.touches[0].clientX; startY=e.touches[0].clientY; tracking=true;
+      }, {passive:true});
+      el.addEventListener("touchend", e=>{
+        if(!tracking) return; tracking=false;
+        const dx=e.changedTouches[0].clientX-startX, dy=e.changedTouches[0].clientY-startY;
+        if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)*1.5){
+          if(dx<0) onLeft(); else onRight();
+        }
+      }, {passive:true});
+    }
+
+    function activityHTML(a, compact=false){
+      const st=getState(a);
+      return `<div class="activity-row ${stateClass(st)}" data-id="${a.id}">
+        <div class="activity-time"><strong>${escapeHTML(a.start)}</strong><span>${escapeHTML(a.end)}</span></div>
+        <div class="activity-main"><div class="activity-title">${escapeHTML(a.title)} ${a.priority==="important"?'<span class="priority-dot">!</span>':''}</div><div class="activity-meta"><span>${escapeHTML(a.category)}</span>${a.location?`<span>• ${escapeHTML(a.location)}</span>`:""}<span>• ${stateLabel(st)}</span></div></div>
+        <div class="row-actions">${st!=="done"?`<button class="mini-btn complete" data-action="complete" data-id="${a.id}">✓</button>`:""}<button class="mini-btn" data-action="edit" data-id="${a.id}">✎</button><button class="mini-btn danger" data-action="delete" data-id="${a.id}">×</button></div>
+      </div>`;
+    }
+
+    function renderDashboard(){
+      const today=activities.filter(a=>a.date===todayISO()), states=today.map(getState);
+      $("#todoCount").textContent=states.filter(s=>s==="todo"||s==="current").length;
+      $("#doneCount").textContent=states.filter(s=>s==="done").length;
+      $("#overdueCount").textContent=states.filter(s=>s==="overdue").length;
+      const total=today.length; $("#successRate").textContent=total?Math.round(states.filter(s=>s==="done").length/total*100)+"%":"0%";
+
+      const current=sorted(today).find(a=>getState(a)==="current");
+      $("#currentStatus").textContent=current?"EN COURS":"EN ATTENTE";
+      $("#currentActivity").innerHTML=current
+        ? `<div class="current-card"><div class="current-icon">▶</div><div><h3>${escapeHTML(current.title)}</h3><p>${current.start} → ${current.end} · ${escapeHTML(current.category)}</p>${current.description?`<small>${escapeHTML(current.description)}</small>`:""}</div><button class="primary-btn small" data-action="complete" data-id="${current.id}">Terminé ✓</button></div>`
+        : `<div class="current-empty"><span>◷</span><p>Aucune activité en cours.</p><small>Ton prochain programme apparaîtra automatiquement ici.</small></div>`;
+
+      const next=sorted(today).find(a=>timeToMin(a.start)>minNow() && getState(a)==="todo");
+      $("#nextActivity").className="next-card"+(next?"":" empty");
+      $("#nextActivity").innerHTML=next?`<div class="next-time">${next.start}<span>dans ${timeUntil(next.start)}</span></div><div><h3>${escapeHTML(next.title)}</h3><p>${escapeHTML(next.category)}${next.location?" · "+escapeHTML(next.location):""}</p></div>`:"Aucun programme à venir aujourd'hui.";
+
+      const preview=sorted(today);
+      $("#todayPreview").innerHTML=preview.length?preview.map(a=>activityHTML(a,true)).join(""):`<div class="empty-state">Aucune activité prévue aujourd'hui.<br><button class="text-btn" data-open-add="true">＋ Ajouter la première</button></div>`;
+      const alerts=sorted(activities.filter(a=>getState(a)==="overdue")).slice(0,6);
+      $("#alertsList").innerHTML=alerts.length?alerts.map(a=>activityHTML(a,true)).join(""):`<div class="empty-state success-empty">✓ Aucune activité en retard.</div>`;
+    }
+
+    function timeUntil(t){
+      let diff=timeToMin(t)-minNow(); if(diff<0) diff+=1440;
+      if(diff<60) return diff+" min";
+      return Math.floor(diff/60)+"h "+(diff%60?diff%60+"min":"");
+    }
+
+    function renderToday(){
+      const iso=dateISO(selectedDay), list=sorted(activities.filter(a=>a.date===iso));
+      const slots=[]; for(let h=0;h<24;h++) slots.push(h);
+      $("#daySchedule").innerHTML=slots.map(h=>{
+        const hs=pad(h)+":00", he=pad(h+1)+":00";
+        const matches=list.filter(a=>timeToMin(a.start)<(h+1)*60 && timeToMin(a.end)>h*60);
+        return `<div class="time-slot"><div class="slot-time">${hs}</div><div class="slot-content">${matches.length?matches.map(a=>activityHTML(a)).join(""):`<div class="slot-empty">Disponible</div>`}</div></div>`;
+      }).join("");
+    }
+
+    function startOfWeek(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); return x; }
+    function renderWeek(){
+      const start=startOfWeek(selectedWeek), days=[...Array(7)].map((_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d;});
+      $("#weekLabel").textContent=`${fmtDate(days[0])} — ${fmtDate(days[6])}`;
+      $("#weekGrid").innerHTML=`<div class="week-head"><div>HEURE</div>${days.map(d=>`<div class="${dateISO(d)===todayISO()?'today-col':''}">${d.toLocaleDateString("fr-FR",{weekday:"short"})}<strong>${d.getDate()}</strong></div>`).join("")}</div>`+
+      [...Array(24)].map((_,i)=>i).map(h=>{
+        return `<div class="week-row"><div class="week-hour">${pad(h)}:00</div>${days.map(d=>{
+          const iso=dateISO(d), found=sorted(activities.filter(a=>a.date===iso&&timeToMin(a.start)<(h+1)*60&&timeToMin(a.end)>h*60));
+          return `<div class="week-cell ${iso===todayISO()?'today-col':''}">${found.map(a=>`<button class="week-event ${stateClass(getState(a))}" data-id="${a.id}" data-action="edit"><b>${escapeHTML(a.title)}</b><small>${a.start}–${a.end}</small></button>`).join("")}</div>`;
+        }).join("")}</div>`;
+      }).join("");
+    }
+
+    function renderMonth(){
+      const y=selectedMonth.getFullYear(), m=selectedMonth.getMonth();
+      $("#monthTitle").textContent=new Intl.DateTimeFormat("fr-FR",{month:"long",year:"numeric"}).format(selectedMonth).replace(/^./,c=>c.toUpperCase());
+      const first=new Date(y,m,1), offset=(first.getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+      const cells=[];
+      for(let i=0;i<offset;i++) cells.push(`<div class="calendar-day muted-day"></div>`);
+      for(let day=1;day<=days;day++){
+        const iso=`${y}-${pad(m+1)}-${pad(day)}`, list=sorted(activities.filter(a=>a.date===iso));
+        cells.push(`<div class="calendar-day ${iso===todayISO()?'today-day':''}"><div class="cal-number">${day}</div>${list.slice(0,3).map(a=>`<button class="cal-event ${stateClass(getState(a))}" data-action="edit" data-id="${a.id}">${escapeHTML(a.title)}</button>`).join("")}${list.length>3?`<small class="more">+${list.length-3} autre(s)</small>`:""}</div>`);
+      }
+      $("#monthCalendar").innerHTML=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"].map(d=>`<div class="calendar-weekday">${d}</div>`).join("")+cells.join("");
+    }
+
+    function filteredActivities(){
+      const cat=$("#categoryFilter").value, st=$("#statusFilter").value;
+      return sorted(activities).filter(a=>(cat==="all"||a.category===cat)&&(st==="all"||getState(a)===st));
+    }
+    function renderActivities(){
+      const list=filteredActivities();
+      $("#allActivities").innerHTML=list.length?list.map(a=>activityHTML(a)).join(""):`<div class="empty-state large">Aucune activité trouvée.</div>`;
+    }
+    function renderSearch(q){
+      $("#searchLabel").textContent=q?`Recherche pour « ${q} »`:"Saisis un terme dans la barre de recherche.";
+      const list=sorted(activities.filter(a=>(a.title+" "+a.category+" "+(a.description||"")+" "+(a.location||"")).toLowerCase().includes(q.toLowerCase())));
+      $("#searchResults").innerHTML=list.length?list.map(a=>activityHTML(a)).join(""):`<div class="empty-state large">Aucun résultat pour « ${escapeHTML(q)} ».</div>`;
+    }
+
+    function openModal(id=null){
+      editingId=id; $("#modalTitle").textContent=id?"Modifier l'activité":"Ajouter une activité";
+      if(id){
+        const a=activities.find(x=>x.id===id); if(!a)return;
+        $("#activityId").value=a.id; $("#title").value=a.title; $("#date").value=a.date; $("#category").value=a.category; $("#start").value=a.start; $("#end").value=a.end; $("#priority").value=a.priority; $("#location").value=a.location||""; $("#description").value=a.description||"";
+      } else {
+        $("#activityForm").reset(); $("#activityId").value=""; $("#date").value=dateISO(selectedDay); $("#start").value="08:00"; $("#end").value="09:00"; $("#priority").value="normal";
+      }
+      $("#modalBackdrop").classList.add("show"); setTimeout(()=>$("#title").focus(),50);
+    }
+    function closeModal(){ $("#modalBackdrop").classList.remove("show"); editingId=null; }
+
+    $("#activityForm").addEventListener("submit",async e=>{
+      e.preventDefault();
+      if(!currentUser) return;
+      const data={title:$("#title").value.trim(),date:$("#date").value,category:$("#category").value,start:$("#start").value,end:$("#end").value,priority:$("#priority").value,location:$("#location").value.trim(),description:$("#description").value.trim()};
+      if(!data.title)return showToast("Le titre est obligatoire.","error");
+      if(timeToMin(data.end)<=timeToMin(data.start)) return showToast("L'heure de fin doit être après l'heure de début.","error");
+      const duplicate=activities.find(a=>a.id!==editingId&&a.date===data.date&&timeToMin(data.start)<timeToMin(a.end)&&timeToMin(data.end)>timeToMin(a.start));
+      if(duplicate && !confirm(`Attention : conflit avec « ${duplicate.title} » (${duplicate.start}–${duplicate.end}). Enregistrer quand même ?`)) return;
+      if(offlineSession){
+        const activity = {...data, id: editingId || uid(), status: editingId ? (activities.find(a=>a.id===editingId)?.status || "todo") : "todo", createdAt: new Date().toISOString()};
+        activities = editingId ? activities.map(a=>a.id===editingId ? activity : a) : [...activities, activity];
+        queueOperation({type: editingId ? "set" : "set", id: activity.id, data: activity});
+        saveLocalActivities();
+        renderAll();
+        closeModal();
+        showToast("Activité enregistrée sur cet appareil.", "success");
+        return;
+      }
+      try{
+        if(editingId){
+          await activitiesRef().doc(editingId).update(data);
+          showToast("Activité modifiée.","success");
+        } else {
+          await activitiesRef().add({...data,status:"todo",createdAt:new Date().toISOString()});
+          showToast("Activité ajoutée.","success");
+        }
+        closeModal();
+      } catch(err){
+        console.error(err);
+        showToast("Erreur lors de l'enregistrement.","error");
+      }
+    });
+
+    function handleAction(action,id){
+      if(!currentUser) return;
+      if(action==="complete"){
+        if(offlineSession){
+          const updated = activities.find(a=>a.id===id);
+          activities = activities.map(a=>a.id===id ? {...a,status:"done",completedAt:new Date().toISOString()} : a);
+          if(updated) queueOperation({type:"set", id, data: {...updated, status:"done", completedAt:new Date().toISOString()}});
+          saveLocalActivities(); renderAll(); showToast("Activité marquée comme terminée ✓", "success");
+          return;
+        }
+        activitiesRef().doc(id).update({status:"done",completedAt:new Date().toISOString()})
+          .then(()=>showToast("Activité marquée comme terminée ✓","success"))
+          .catch(err=>{console.error(err);showToast("Erreur lors de la mise à jour.","error");});
+      }
+      if(action==="edit") openModal(id);
+      if(action==="delete"){
+        const a=activities.find(x=>x.id===id);
+        if(a&&confirm(`Supprimer « ${a.title} » ?`)){
+          if(offlineSession){
+            activities = activities.filter(item=>item.id!==id);
+            queueOperation({type:"delete", id});
+            saveLocalActivities(); renderAll(); showToast("Activité supprimée.");
+            return;
+          }
+          activitiesRef().doc(id).delete()
+            .then(()=>showToast("Activité supprimée."))
+            .catch(err=>{console.error(err);showToast("Erreur lors de la suppression.","error");});
+        }
+      }
+    }
+    document.addEventListener("click",e=>{
+      const actionEl=e.target.closest("[data-action]");
+      if(actionEl){
+        const id = actionEl.dataset.id || actionEl.closest("[data-id]")?.dataset.id;
+        handleAction(actionEl.dataset.action, id);
+        return;
+      }
+      const viewEl=e.target.closest("[data-view]");
+      if(viewEl){switchView(viewEl.dataset.view);return;}
+      if(e.target.closest("[data-open-add]"))openModal();
+    });
+
+    function switchView(name){
+      $$(".view").forEach(v=>v.classList.remove("active")); $(`#${name}View`).classList.add("active");
+      $$(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
+      closeMobileMenu();
+    }
+
+    const openButtons=["openAdd","openAddSide","openAddToday","openAddWeek","openAddMonth","openAddActivities"];
+    openButtons.forEach(id=>$("#"+id).addEventListener("click",()=>openModal()));
+    $("#closeModal").onclick=closeModal; $("#cancelModal").onclick=closeModal;
+    $("#modalBackdrop").addEventListener("click",e=>{if(e.target.id==="modalBackdrop")closeModal();});
+    function closeMobileMenu(){
+      $("#sidebar").classList.remove("mobile-open");
+      $("#mobileMenu").setAttribute("aria-expanded","false");
+    }
+    $("#mobileMenu").onclick=()=>{
+      const isOpen=$("#sidebar").classList.toggle("mobile-open");
+      $("#mobileMenu").setAttribute("aria-expanded",String(isOpen));
+    };
+    $("#mobileBack").onclick=closeMobileMenu;
+    document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMobileMenu();});
+
+    $("#todayBtn").onclick=()=>{selectedDay=new Date();selectedDay.setHours(0,0,0,0);switchView("today");renderAll();};
+    $("#todayJump").onclick=()=>{$("#todayBtn").click();};
+    $("#prevDay").onclick=()=>{selectedDay.setDate(selectedDay.getDate()-1);renderAll();};
+    $("#nextDay").onclick=()=>{selectedDay.setDate(selectedDay.getDate()+1);renderAll();};
+    $("#prevWeek").onclick=()=>{selectedWeek.setDate(selectedWeek.getDate()-7);renderAll();};
+    $("#nextWeek").onclick=()=>{selectedWeek.setDate(selectedWeek.getDate()+7);renderAll();};
+    $("#currentWeek").onclick=()=>{selectedWeek=new Date();selectedWeek.setHours(0,0,0,0);renderAll();};
+    $("#prevMonth").onclick=()=>{selectedMonth.setMonth(selectedMonth.getMonth()-1);renderAll();};
+    $("#nextMonth").onclick=()=>{selectedMonth.setMonth(selectedMonth.getMonth()+1);renderAll();};
+    $("#currentMonth").onclick=()=>{selectedMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);renderAll();};
+
+    enableSwipeNav($("#weekGrid"), ()=>$("#nextWeek").click(), ()=>$("#prevWeek").click());
+    enableSwipeNav($("#monthCalendar"), ()=>$("#nextMonth").click(), ()=>$("#prevMonth").click());
+    $("#categoryFilter").onchange=renderActivities; $("#statusFilter").onchange=renderActivities;
+
+    let searchTimer;
+    $("#searchInput").addEventListener("input",e=>{
+      clearTimeout(searchTimer); const q=e.target.value.trim();
+      searchTimer=setTimeout(()=>{if(q){switchView("search");renderSearch(q);} else switchView("dashboard");},120);
+    });
+    document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();$("#searchInput").focus();}});
+    function checkOverdue(){
+      const now=todayISO(), newly=activities.filter(a=>a.date===now&&getState(a)==="overdue"&&a.status!=="done");
+      const notified=JSON.parse(sessionStorage.getItem("overdueNotified")||"[]");
+      newly.forEach(a=>{const key=a.id+"-"+a.date;if(!notified.includes(key)){showToast(`⚠️ « ${a.title} » n'a pas été marquée comme terminée.`, "warning");notified.push(key);}});
+      sessionStorage.setItem("overdueNotified",JSON.stringify(notified));
+    }
+
+    // ---- Connexion / Inscription / Déconnexion ----
+    let authMode = "login";
+    function setAuthMode(mode){
+      authMode = mode;
+      const isLogin = mode==="login";
+      $("#authTitle").textContent = isLogin ? "Connexion" : "Créer un compte";
+      $("#authSubmitText").textContent = isLogin ? "Se connecter" : "Créer mon compte";
+      $("#authToggleText").textContent = isLogin ? "Pas encore de compte ?" : "Déjà un compte ?";
+      $("#authToggleBtn").textContent = isLogin ? "Créer un compte" : "Se connecter";
+      $("#authError").textContent = "";
+    }
+    $("#authToggleBtn").addEventListener("click",()=>setAuthMode(authMode==="login"?"signup":"login"));
+    $("#offlineAccessBtn").addEventListener("click",()=>{
+      if(!restoreOfflineSession()) $("#authError").textContent = "Connecte-toi une première fois avec Internet sur ce téléphone.";
+    });
+    updateOfflineAccessButton();
+
+    $("#togglePassword").addEventListener("click",()=>{
+      const input=$("#authPassword"), btn=$("#togglePassword");
+      const showing=input.type==="text";
+      input.type=showing?"password":"text";
+      btn.classList.toggle("active",!showing);
+      btn.setAttribute("aria-label",showing?"Afficher le mot de passe":"Masquer le mot de passe");
+    });
+
+    function authErrorMessage(err){
+      const map = {
+        "auth/email-already-in-use":"Cet e-mail est déjà utilisé.",
+        "auth/invalid-email":"Adresse e-mail invalide.",
+        "auth/weak-password":"Mot de passe trop faible (6 caractères minimum).",
+        "auth/user-not-found":"Aucun compte avec cet e-mail.",
+        "auth/wrong-password":"Mot de passe incorrect.",
+        "auth/invalid-credential":"E-mail ou mot de passe incorrect."
+      };
+      return map[err.code] || "Une erreur est survenue. Réessaie.";
+    }
+
+    $("#authForm").addEventListener("submit", async e=>{
+      e.preventDefault();
+      const email=$("#authEmail").value.trim(), password=$("#authPassword").value;
+      $("#authError").textContent="";
+      $("#authSubmit").disabled=true;
+      try{
+        if(authMode==="login") await auth.signInWithEmailAndPassword(email,password);
+        else await auth.createUserWithEmailAndPassword(email,password);
+        localStorage.setItem(OFFLINE_USER_KEY, email);
+      } catch(err){
+        $("#authError").textContent = authErrorMessage(err);
+      } finally {
+        $("#authSubmit").disabled=false;
+      }
+    });
+
+    $("#logoutBtn").addEventListener("click", ()=>{
+      localStorage.removeItem(OFFLINE_USER_KEY);
+      if(offlineSession){
+        offlineSession = false;
+        currentUser = null;
+        activities = [];
+        $("#appShell").style.display = "none";
+        $("#authScreen").classList.add("show");
+        return;
+      }
+      auth.signOut();
+    });
+
+    auth.onAuthStateChanged(user=>{
+      if(!user && !navigator.onLine && restoreOfflineSession()) return;
+      currentUser = user;
+      offlineSession = false;
+      if(user){
+        localStorage.setItem(OFFLINE_USER_KEY, user.email);
+        localStorage.setItem(OFFLINE_UID_KEY, user.uid);
+        updateOfflineAccessButton();
+        $("#authScreen").classList.remove("show");
+        $("#appShell").style.display = "flex";
+        $("#userEmail").textContent = user.email;
+        $("#userAvatar").textContent = (user.email||"?").charAt(0).toUpperCase();
+        $("#authForm").reset();
+        renderAll();
+        subscribeActivities();
+        syncPendingOperations().catch(error => console.error("Synchronisation initiale impossible :", error));
+      } else {
+        if(unsubscribeActivities){ unsubscribeActivities(); unsubscribeActivities=null; }
+        activities = [];
+        $("#appShell").style.display = "none";
+        $("#authScreen").classList.add("show");
+      }
+    });
+
+    updateClock();
+    window.addEventListener("online", () => {
+      if(currentUser?.uid) syncPendingOperations().catch(error => console.error("Synchronisation au retour en ligne impossible :", error));
+    });
+    setInterval(()=>{updateClock();renderDashboard();renderToday();checkOverdue();},1000);
+  })();
+  </script>
+  
+</body>
+</html>
