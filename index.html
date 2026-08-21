@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon Organisation — Gestion du temps</title>
+  <meta name="theme-color" content="#6366f1">
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -227,6 +229,15 @@
   </script>
 
   <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js")
+          .catch(error => console.error("Service worker indisponible :", error));
+      });
+    }
+  </script>
+
+  <script>
   (() => {
     "use strict";
 
@@ -264,6 +275,11 @@
     // ---- Firebase Auth + Firestore ----
     const auth = firebase.auth();
     const db = firebase.firestore();
+    db.enablePersistence({ synchronizeTabs: true }).catch(error => {
+      if (error.code !== "failed-precondition" && error.code !== "unimplemented") {
+        console.error("Persistance hors connexion indisponible :", error);
+      }
+    });
     let currentUser = null;
     let unsubscribeActivities = null;
 
