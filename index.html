@@ -41,7 +41,13 @@
           <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
           <span id="authSubmitText">Se connecter</span>
         </button>
-        <button type="button" class="secondary-btn full-width" id="offlineAccessBtn" hidden>Continuer hors connexion</button>
+        <div class="auth-divider" id="offlineDivider" hidden><span>ou</span></div>
+        <button type="button" class="offline-btn" id="offlineAccessBtn" hidden>
+          <span class="offline-btn-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"></path><path d="M8.5 16.5a5 5 0 0 1 7 0"></path><path d="M5 12.5a10 10 0 0 1 5.5-3"></path><path d="M19 12.5a10 10 0 0 0-2.5-2"></path><path d="M2 8.5a15 15 0 0 1 4.17-2.65"></path><path d="M22 8.5a15 15 0 0 0-9-3.5"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>
+          </span>
+          <span>Continuer hors connexion</span>
+        </button>
       </form>
       <p class="auth-toggle">
         <span id="authToggleText">Pas encore de compte ?</span>
@@ -57,7 +63,9 @@
         <div><strong>Mon Organisation</strong><small>Gestion du temps</small></div>
       </div>
       <button class="mobile-back" id="mobileBack" type="button" aria-label="Fermer le menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+        <span class="mobile-back-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+        </span>
         <span>Retour</span>
       </button>
       <nav class="nav">
@@ -77,7 +85,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
           <span>Déconnexion</span>
         </button>
-        <div class="storage-status"><span class="dot"></span>Données sauvegardées en ligne</div>
+        <div class="storage-status" id="connectivityStatus"><span class="dot"></span>Données sauvegardées en ligne</div>
       </div>
     </aside>
 
@@ -282,6 +290,11 @@
     // ---- Firebase Auth + Firestore ----
     const auth = firebase.auth();
     const db = firebase.firestore();
+    // Garde la session connectée durablement sur l'appareil (même après fermeture du navigateur),
+    // pour éviter de redemander une connexion à chaque ouverture de l'app.
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(error => {
+      console.error("Persistance de connexion indisponible :", error);
+    });
     db.enablePersistence({ synchronizeTabs: true }).catch(error => {
       if (error.code !== "failed-precondition" && error.code !== "unimplemented") {
         console.error("Persistance hors connexion indisponible :", error);
@@ -290,6 +303,7 @@
     let currentUser = null;
     let offlineSession = false;
     let unsubscribeActivities = null;
+    let authResolved = false;
 
     function saveLocalActivities(){
       const email = currentUser?.email;
@@ -317,9 +331,22 @@
       showToast("Mode hors connexion activé.");
       return true;
     }
+    function hasOfflineCredentials(){
+      return !!localStorage.getItem(OFFLINE_USER_KEY) && !!localStorage.getItem(OFFLINE_UID_KEY);
+    }
     function updateOfflineAccessButton(){
       const button = $("#offlineAccessBtn");
-      if(button) button.hidden = !localStorage.getItem(OFFLINE_USER_KEY) || !localStorage.getItem(OFFLINE_UID_KEY);
+      const divider = $("#offlineDivider");
+      const canUseOffline = hasOfflineCredentials();
+      if(button) button.hidden = !canUseOffline;
+      if(divider) divider.hidden = !canUseOffline;
+    }
+    function updateConnectivityStatus(){
+      const el = $("#connectivityStatus");
+      if(!el) return;
+      const online = navigator.onLine;
+      el.innerHTML = `<span class="dot"></span>${online ? "Données sauvegardées en ligne" : "Hors connexion — données locales"}`;
+      el.classList.toggle("is-offline", !online);
     }
 
     function activitiesRef(){
@@ -707,7 +734,8 @@
         "auth/weak-password":"Mot de passe trop faible (6 caractères minimum).",
         "auth/user-not-found":"Aucun compte avec cet e-mail.",
         "auth/wrong-password":"Mot de passe incorrect.",
-        "auth/invalid-credential":"E-mail ou mot de passe incorrect."
+        "auth/invalid-credential":"E-mail ou mot de passe incorrect.",
+        "auth/network-request-failed":"Pas de connexion internet. Utilise « Continuer hors connexion » ci-dessous si disponible."
       };
       return map[err.code] || "Une erreur est survenue. Réessaie.";
     }
@@ -716,12 +744,23 @@
       e.preventDefault();
       const email=$("#authEmail").value.trim(), password=$("#authPassword").value;
       $("#authError").textContent="";
+      // Si l'appareil est hors ligne, inutile d'appeler Firebase : on tente direct le mode hors connexion.
+      if(!navigator.onLine){
+        if(!restoreOfflineSession()){
+          $("#authError").textContent = "Tu es hors connexion et aucune session locale n'a été trouvée. Connecte-toi une première fois avec Internet.";
+        }
+        return;
+      }
       $("#authSubmit").disabled=true;
       try{
         if(authMode==="login") await auth.signInWithEmailAndPassword(email,password);
         else await auth.createUserWithEmailAndPassword(email,password);
         localStorage.setItem(OFFLINE_USER_KEY, email);
       } catch(err){
+        if(err.code==="auth/network-request-failed" && hasOfflineCredentials() && restoreOfflineSession()){
+          // Réseau instable : on bascule automatiquement sur la session locale plutôt que de bloquer l'utilisateur.
+          return;
+        }
         $("#authError").textContent = authErrorMessage(err);
       } finally {
         $("#authSubmit").disabled=false;
@@ -741,8 +780,29 @@
       auth.signOut();
     });
 
+    // ---- Démarrage "hors connexion d'abord" ----
+    // Si l'appareil est hors ligne dès l'ouverture de l'app, on ne perd pas de temps à attendre
+    // Firebase : on restaure directement la session locale si elle existe.
+    if(!navigator.onLine && hasOfflineCredentials()){
+      restoreOfflineSession();
+    }
+
+    // Filet de sécurité : si le réseau se dit "disponible" (navigator.onLine) mais que Firebase
+    // ne répond pas (Wi-Fi captif, connexion instable...), on bascule automatiquement en mode
+    // hors connexion après quelques secondes plutôt que de laisser l'utilisateur bloqué.
+    let authFallbackTimer = setTimeout(()=>{
+      if(!authResolved && !currentUser && hasOfflineCredentials()){
+        if(restoreOfflineSession()){
+          showToast("Connexion lente : mode hors connexion activé automatiquement.", "warning");
+        }
+      }
+    }, 5000);
+
     auth.onAuthStateChanged(user=>{
+      authResolved = true;
+      clearTimeout(authFallbackTimer);
       if(!user && !navigator.onLine && restoreOfflineSession()) return;
+      if(!user && offlineSession) return; // on reste sur la session locale déjà restaurée
       currentUser = user;
       offlineSession = false;
       if(user){
@@ -766,9 +826,12 @@
     });
 
     updateClock();
+    updateConnectivityStatus();
     window.addEventListener("online", () => {
-      if(currentUser?.uid) syncPendingOperations().catch(error => console.error("Synchronisation au retour en ligne impossible :", error));
+      updateConnectivityStatus();
+      if(currentUser?.uid && !offlineSession) syncPendingOperations().catch(error => console.error("Synchronisation au retour en ligne impossible :", error));
     });
+    window.addEventListener("offline", updateConnectivityStatus);
     setInterval(()=>{updateClock();renderDashboard();renderToday();checkOverdue();},1000);
   })();
   </script>
